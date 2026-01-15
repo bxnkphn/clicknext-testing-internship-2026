@@ -42,22 +42,42 @@ const validateForm = () => {
   return isValid;
 };
 
+// ... import code ...
+
 const handleLogin = async () => {
   if (!validateForm()) return;
 
   isLoading.value = true;
 
-  console.log("Sending to Backend:", {
-    email: email.value,
-    password: password.value,
-  });
+  try {
+    const response = await fetch('http://localhost:8000/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email.value,
+        password: password.value
+      })
+    });
 
-  setTimeout(() => {
-    localStorage.setItem("user_token", "mock-token-1234");
-    localStorage.setItem("user_email", email.value);    
+    const data = await response.json();
+
+    if (response.ok) {
+      localStorage.setItem("user_token", data.token);
+      localStorage.setItem("user_data", JSON.stringify(data.user));
+
+      alert("เข้าสู่ระบบสำเร็จ!");
+    } else {
+      alert(data.message || "การเข้าสู่ระบบล้มเหลว");
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
+  } finally {
     isLoading.value = false;
-    alert("เข้าสู่ระบบสำเร็จ!");
-  }, 1500);
+  }
 };
 </script>
 
@@ -81,7 +101,7 @@ const handleLogin = async () => {
               <span class="input-group-text bg-secondary border-secondary text-white">
                 <i class="bi bi-envelope-fill"></i>
               </span>
-              <input type="email" id="email" class="form-control bg-dark text-white border-secondary" :class="{ 'is-invalid': errors.email }" v-model="email" placeholder="name@example.com" />
+              <input type="email" id="email" class="form-control bg-dark text-white border-secondary" :class="{ 'is-invalid': errors.email }" v-model="email" placeholder="example@domain.com" />
               <div class="invalid-feedback">
                 {{ errors.email }}
               </div>
@@ -113,7 +133,7 @@ const handleLogin = async () => {
         </form>
 
         <p class="text-center text-white-50 mt-4 small">
-          หากไม่มีบัญชีสามารถ <a href="#" class="text-primary text-decoration-none fw-bold">สมัครสมาชิก</a> ได้
+          หากไม่มีบัญชีสามารถสมัครสมาชิกได้ <a href="#" class="text-primary-500 fw-bold">ที่นี่</a>
         </p>
       </div>
     </div>
