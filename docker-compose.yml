@@ -14,7 +14,7 @@ services:
     image: webdevops/php-nginx:8.2-alpine
     working_dir: /app
     ports:
-      - "8000:80"
+      - "8000:8000"
     volumes:
       - ./backend:/app
     environment:
@@ -30,6 +30,30 @@ services:
       - database
     networks:
       - banking-web-app-network
+    command: >
+      sh -c "
+      echo 'Starting Setup Process...';
+      
+      echo '1. Checking Environment File...';
+      cp -n .env.example .env || true;
+      
+      echo '2. Installing Dependencies (Wait ~1-2 mins)...';
+      composer install --no-interaction --prefer-dist;
+      
+      echo '3️. Generating App Key...';
+      php artisan key:generate --force;
+      
+      echo '4️. Waiting for Database to be ready (30s)...';
+      sleep 30; 
+      
+      echo '5. Migrating & Seeding Database...';
+      php artisan migrate:fresh --seed --force;
+      php artisan config:clear;
+      php artisan cache:clear;
+      
+      echo 'Setup Complete! Starting Server...';
+      php artisan serve --host=0.0.0.0 --port=8000
+      "
 
   database:
     image: mysql:8.0
