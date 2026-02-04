@@ -40,7 +40,7 @@
 1. ใช้คำสั่ง clone เพื่อนำ Source code มาลงบนเครื่องผ่าน Terminal
 
 ```bash
-git clone https://github.com/your-username/clicknext-internship-assessment-2026.git
+git clone https://github.com/bxnkphn/clicknext-internship-assessment-2026.git
 ```
 
 2. เข้า Folder เพื่อเข้าถึง `docker-compose.yml`
